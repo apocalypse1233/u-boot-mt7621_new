@@ -30,7 +30,7 @@
 
 		sdhci {
 			groups = "sdhci";
-			function = "gpio";
+			function = "sdhci";
 		};
 
 		jtag {
@@ -81,6 +81,6 @@
 	status = "okay";
 };
 
-&xhci {
+&mmc {
 	status = "okay";
 };
