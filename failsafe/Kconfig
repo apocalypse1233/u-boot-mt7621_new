@@ -20,4 +20,9 @@ config FAILSAFE_ON_BUTTON
 	bool "Press and hold the reset button to enter the failsafe mode"
 	default n
 
+config GPIO_BTN_RESET
+	int "Insert GPIO # of reset button"
+	default -1
+	depends on FAILSAFE_ON_BUTTON
+
 endif # WEBUI_FAILSAFE

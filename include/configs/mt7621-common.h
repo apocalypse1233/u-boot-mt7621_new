@@ -49,3 +49,16 @@
 					  230400, 460800, 921600 }
 
 #endif  /* __CONFIG_MT7621_COMMON_H */
+
+#ifndef __CONFIG_MT7621_RESET_LED
+#define __CONFIG_MT7621_RESET_LED
+#endif
+
+#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial, ethaddr, etc */
+
+#ifdef CONFIG_FAILSAFE_ON_BUTTON
+#if CONFIG_GPIO_BTN_RESET != -1
+#define MT7621_BUTTON_RESET CONFIG_GPIO_BTN_RESET
+#endif
+#endif
+
