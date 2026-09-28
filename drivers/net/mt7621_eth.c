@@ -486,7 +486,9 @@ static void mt7530_setup(struct mt7621_eth_priv *priv)
 	mt7530_reg_write(priv, TRGMII_TCK_ODT_REG,
 		REG_SET_VAL(TX_DM_DRVN, 4) | REG_SET_VAL(TX_DM_DRVP, 4));
 
+        #ifdef  CONFIG_MT7621_ALL_PHY_LINK_UP
 	/* Turn on PHYs */
+	printf("Enable all ports\n");
 	for (i = 0; i < MT7530_NUM_PHYS; i++) {
 		phy_val = mt7621_mdio_read(priv->mdio_bus,
 			i, MDIO_DEVAD_NONE, MII_BMCR);
@@ -494,6 +496,57 @@ static void mt7530_setup(struct mt7621_eth_priv *priv)
 		mt7621_mdio_write(priv->mdio_bus,
 			i, MDIO_DEVAD_NONE, MII_BMCR, phy_val);
 	}
+	#endif
+
+        #ifdef CONFIG_MT7621_ETH0_PORT_LINK_UP
+        /* Turn on Port 0 */
+        printf("Enable port 0\n");
+        phy_val = mt7621_mdio_read(priv->mdio_bus,
+                0, MDIO_DEVAD_NONE, MII_BMCR);
+        phy_val &= ~BMCR_PDOWN;
+        mt7621_mdio_write(priv->mdio_bus,
+                0, MDIO_DEVAD_NONE, MII_BMCR, phy_val);
+        #endif
+
+        #ifdef CONFIG_MT7621_ETH1_PORT_LINK_UP
+        /* Turn on Port 1 */
+        printf("Enable port 1\n");
+        phy_val = mt7621_mdio_read(priv->mdio_bus,
+                1, MDIO_DEVAD_NONE, MII_BMCR);
+        phy_val &= ~BMCR_PDOWN;
+        mt7621_mdio_write(priv->mdio_bus,
+                1, MDIO_DEVAD_NONE, MII_BMCR, phy_val);
+        #endif
+
+        #ifdef CONFIG_MT7621_ETH2_PORT_LINK_UP
+        /* Turn on Port 2 */
+        printf("Enable port 2\n");
+        phy_val = mt7621_mdio_read(priv->mdio_bus,
+                2, MDIO_DEVAD_NONE, MII_BMCR);
+        phy_val &= ~BMCR_PDOWN;
+        mt7621_mdio_write(priv->mdio_bus,
+                2, MDIO_DEVAD_NONE, MII_BMCR, phy_val);
+        #endif
+
+        #ifdef CONFIG_MT7621_ETH3_PORT_LINK_UP
+        /* Turn on Port 3 */
+        printf("Enable port 3\n");
+        phy_val = mt7621_mdio_read(priv->mdio_bus,
+                3, MDIO_DEVAD_NONE, MII_BMCR);
+        phy_val &= ~BMCR_PDOWN;
+        mt7621_mdio_write(priv->mdio_bus,
+                3, MDIO_DEVAD_NONE, MII_BMCR, phy_val);
+        #endif
+
+        #ifdef CONFIG_MT7621_ETH4_PORT_LINK_UP
+        /* Turn on Port 4 */
+        printf("Enable port 4\n");
+        phy_val = mt7621_mdio_read(priv->mdio_bus,
+                4, MDIO_DEVAD_NONE, MII_BMCR);
+        phy_val &= ~BMCR_PDOWN;
+        mt7621_mdio_write(priv->mdio_bus,
+                4, MDIO_DEVAD_NONE, MII_BMCR, phy_val);
+        #endif
 
 	/* Undocumented */
 	mt7530_reg_read(priv, 0x7808, &val);

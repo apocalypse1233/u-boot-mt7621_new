@@ -227,12 +227,53 @@ config MACB_ZYNQ
 	  The Cadence MACB ethernet interface was used on Zynq platform.
 	  Say Y to enable support for the MACB/GEM in Zynq chip.
 
-config MT7621_ETH
+menuconfig MT7621_ETH
 	bool "MediaTek MT7621 Ethernet Interface"
 	depends on DM_ETH && MACH_MT7621
 	select PHYLIB
 	help
 	  This driver supports the Ethernet MAC in MediaTek MT7621 SoC.
+
+if MT7621_ETH
+
+config MT7621_ALL_PHY_LINK_UP
+	bool "Enable All Ports"
+	default y
+	help
+	  Enable all MT7621 PHY Ports on bootloader envinronment.
+
+config MT7621_ETH0_PORT_LINK_UP
+	bool "Enable Port 0"
+	depends on !MT7621_ALL_PHY_LINK_UP
+	help
+	  Enable MT7621 port 0 on bootloader environment.
+
+config MT7621_ETH1_PORT_LINK_UP
+	bool "Enable Port 1"
+	depends on !MT7621_ALL_PHY_LINK_UP
+	help
+	  Enable MT7621 port 1 on bootloader envinronment.
+
+config MT7621_ETH2_PORT_LINK_UP
+	bool "Enable Port 2"
+	depends on !MT7621_ALL_PHY_LINK_UP
+	help
+	  Enable MT7621 port 2 on bootloader envinronment.
+
+config MT7621_ETH3_PORT_LINK_UP
+	bool "Enable Port 3"
+	depends on !MT7621_ALL_PHY_LINK_UP
+	help
+	  Enable MT7621 port 3 on bootloader envinronment.
+
+config MT7621_ETH4_PORT_LINK_UP
+	bool "Enable Port 4"
+	depends on !MT7621_ALL_PHY_LINK_UP
+	help
+	  Enable MT7621 port 4 on bootloader envinroment.
+
+endif
+
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
