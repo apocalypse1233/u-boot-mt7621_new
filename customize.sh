@@ -9,73 +9,60 @@ echo "STAGING_DIR=${Toolchain%/toolchain-*}"
 cd $(dirname "$0")
 
 # arguments:
-# $1	string: flash type
-# $2	string: partition table
-# $3	string: kernel offset
-# $4	number: reset pin
-# $5	number: sysled gpio
-# $6	number: cpu frequency
-# $7	number: ram frequency
-# $8	string: ddr param
-# $9	string: baud rate
+# $1	string: u-boot partition size (in k)
+# $2	string: u-boot-env partition size (in k)
+# $3	string: factory partition size (in k)
+# $4	string: kernel offset
+# $5	number: cpu frequency
+# $6	number: ram frequency
+# $7	string: ddr param
+# $8	string: baud rate
 
-echo "Parse flash type: $1"
 # simple check if partition table is valid
-if [ -z $( echo -n "$2" | grep '),-(firmware)') ]; then
-	echo "Invalid mtd partition table!"
+#if [ -z $( echo -n "$1" | grep '),-(firmware)') ]; then
+	#echo "Invalid mtd partition table!"
+	#exit 1
+#fi
+
+if [ -z $( echo -n "$1" | grep 'k') ]; then
+	echo "Invalid u-boot partition size (example: 192k)"
 	exit 1
 fi
+
+if [ -z $( echo -n "$2" | grep 'k') ]; then
+	echo "Invalid u-boot-env partition size (example: 64k)"
+	exit 1
+fi
+
+if [ -z $( echo -n "$3" | grep 'k') ]; then
+	echo "Invalid factory partition size (example: 64k)"
+	exit 1
+fi
+
+partition_table="${1}(u-boot),${2}(u-boot-env),${3}(factory),-(firmware)"
+
 DEFCONFIG="configs/mt7621_build_defconfig"
-if [ "$1" = 'NOR' ]; then
-	cp configs/mt7621_nor_template_defconfig ${DEFCONFIG}
-	echo -e "CONFIG_MTDPARTS_DEFAULT=\"mtdparts=raspi:$2\"" >> ${DEFCONFIG}
-elif [ "$1" = 'NAND' ]; then
-	cp configs/mt7621_nand_template_defconfig ${DEFCONFIG}
-	echo -e "CONFIG_MTDPARTS_DEFAULT=\"mtdparts=nand0:$2\"" >> ${DEFCONFIG}
-else
-	cp configs/mt7621_nmbm_template_defconfig ${DEFCONFIG}
-	echo -e "CONFIG_MTDPARTS_DEFAULT=\"mtdparts=nmbm0:$2\"" >> ${DEFCONFIG}
-fi
-echo "set partition table: $2"
+cp configs/mt7621_nor_template_defconfig ${DEFCONFIG}
 
-echo "set kernel offset: $3"
-if [ "$1" = 'NOR' ]; then
-	echo "CONFIG_DEFAULT_NOR_KERNEL_OFFSET=$3" >> ${DEFCONFIG}
-else
-	echo "CONFIG_DEFAULT_NAND_KERNEL_OFFSET=$3" >> ${DEFCONFIG}
-fi
+echo "set partition table: $partition_table"
+echo -e "CONFIG_MTDPARTS_DEFAULT=\"mtdparts=raspi:$partition_table\"" >> ${DEFCONFIG}
 
-echo -e "#ifndef __CONFIG_MT7621_RESET_LED\n#define __CONFIG_MT7621_RESET_LED" \
-	>> ./include/configs/mt7621-common.h
-if [ "$4" -ge 0 -a "$4" -le 48 ]; then
-	echo "set reset button pin: $4"
-	echo "CONFIG_FAILSAFE_ON_BUTTON=y" >> ${DEFCONFIG}
-	echo "#define MT7621_BUTTON_RESET $4" >> ./include/configs/mt7621-common.h
-else
-	echo "Reset button is disabled!"
-fi
+echo "set kernel offset: $4"
+echo "CONFIG_DEFAULT_NOR_KERNEL_OFFSET=$4" >> ${DEFCONFIG}
 
-if [ "$5" -ge 0 -a "$5" -le 48 ]; then
-	echo "set system led pin: $5"
-	echo "#define MT7621_LED_STATUS1 $5" >> ./include/configs/mt7621-common.h
-else
-	echo "System LED is disabled!"
-fi
-echo "#endif" >> ./include/configs/mt7621-common.h
-
-if [ "$6" -ge 400 -a "$6" -le 1200 ]; then
-	echo "set CPU frequency: $6 MHz"
-	echo "CONFIG_MT7621_CPU_FREQ_LEGACY=$6" >> ${DEFCONFIG}
+if [ "$5" -ge 400 -a "$5" -le 1200 ]; then
+	echo "set CPU frequency: $5 MHz"
+	echo "CONFIG_MT7621_CPU_FREQ_LEGACY=$5" >> ${DEFCONFIG}
 else
 	echo "Invalid CPU Frequency!"
 	exit 1
 fi
 
-echo "set DRAM frequency: $7 MT/s"
-echo "CONFIG_MT7621_DRAM_FREQ_$7_LEGACY=y" >> ${DEFCONFIG}
+echo "set DRAM frequency: $6 MT/s"
+echo "CONFIG_MT7621_DRAM_FREQ_$6_LEGACY=y" >> ${DEFCONFIG}
 
-echo "Parse DDR init parameters: $8"
-case "$8" in
+echo "Parse DDR init parameters: $7"
+case "$7" in
 DDR2-64MiB)
 	echo "CONFIG_MT7621_DRAM_DDR2_512M_LEGACY=y" >> ${DEFCONFIG}
 	;;
@@ -109,17 +96,11 @@ DDR3-128MiB-KGD)
 	;;
 esac
 
-echo "Set baud rate: $9"
-if [ "$9" = '57600' ]; then
+echo "Set baud rate: $8"
+if [ "$8" = '57600' ]; then
 	echo "CONFIG_BAUDRATE=57600" >> ${DEFCONFIG}
 else
 	echo "CONFIG_BAUDRATE=115200" >> ${DEFCONFIG}
 fi
 
 make mt7621_build_defconfig
-make CROSS_COMPILE=${Toolchain} STAGING_DIR=${Staging}
-make savedefconfig
-mkdir archive
-cat defconfig > archive/mt7621_defconfig
-mv u-boot-mt7621.bin archive/
-mv u-boot.img archive/
