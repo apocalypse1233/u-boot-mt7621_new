@@ -60,10 +60,6 @@ config BOARD_MT7621_NAND_TEMPLATE
 	bool "MT7621 Template for NAND Flash"
 	select SOC_MT7621
 
-config BOARD_UBIQUITI_ERX
-	bool "Ubiquiti EdgeRouter X for SPI Flash"
-	select SOC_MT7621
-
 endchoice
 
 config SPL_ALIGN_TO
